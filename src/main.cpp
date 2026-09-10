@@ -59,7 +59,6 @@ void setup() {
 
   current_sense.linkDriver(&driver);
   
-  // (Optional: You may still need skip_align=true here for your high-resistance gimbal motor)
   // current_sense.skip_align = true;
 
   // 2. THEN init current sense
@@ -119,7 +118,7 @@ void loop() {
   motor.monitor();
   command.run();
 
-
+  // This is just for testing and not intended to be actually used by a real system
   CANFDMessage message;
   // check if a new can message has arrived
   if (fdcan1.receiveFD0(message)) {
