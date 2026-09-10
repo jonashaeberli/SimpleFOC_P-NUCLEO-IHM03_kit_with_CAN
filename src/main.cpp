@@ -22,7 +22,7 @@ Commander command = Commander(Serial);
 void doMotor(char* cmd) { command.motor(&motor, cmd); }
 
 // angle command
-char angle_command[16];
+float req_angle;
 
 void setup() {
   // monitoring port
@@ -91,6 +91,9 @@ void setup() {
   motor.LPF_current_q.Tf = 0.02;
   motor.LPF_current_d.Tf = 0.02;
 
+  // Angle command smoothing
+  motor.LPF_angle.Tf = 0.05;
+
   // initialize motor
   if(!motor.init()){
     Serial.println("Motor init failed!");
@@ -122,21 +125,17 @@ void loop() {
   CANFDMessage message;
   // check if a new can message has arrived
   if (fdcan1.receiveFD0(message)) {
-    Serial.print("Received CAN ID: 0x");
-    Serial.println(message.id, HEX);
+    //Serial.print("Received CAN ID: 0x");
+    //Serial.println(message.id, HEX);
     
-    Serial.print("Data: ");
-    for (int i = 0; i < message.len; i++) {
-      Serial.print(message.data[i], HEX);
-      Serial.print(" ");
-    }
-    Serial.println();
-    snprintf(
-    angle_command,
-      sizeof(angle_command),
-      "M%u",
-      static_cast<unsigned>(message.data[0])
-    );
-    command.run(angle_command);
+    //Serial.print("Data: ");
+    //for (int i = 0; i < message.len; i++) {
+    //  Serial.print(message.data[i], HEX);
+    //  Serial.print(" ");
+    //}
+    memcpy(&req_angle, message.data, 4);
+    //Serial.print("Float is: ");
+    //Serial.println(req_angle, 4);
+    motor.target = req_angle;
   }
 }
